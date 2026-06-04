@@ -26,9 +26,5 @@ public class Controller {
     public String liveness(){
         return "ok";
     }
-    @PreAuthorize("hasRole('admin')")
-    @GetMapping("/activo/{id}")
-    public ActivoTecnologicoEntity activoById(@PathVariable("id") UUID id){
-        return activoTecnologicoService.getById(id) ;
-    }
+    
 }

@@ -18,10 +18,6 @@ public class ControllerCategorias {
         this.categoriaService = categoriaService;
     }
 
-    @PreAuthorize("hasRole('client')")
-    @GetMapping("/liveness")
-    public String liveness() {
-        return "ok";
-    }
+   
 
 }

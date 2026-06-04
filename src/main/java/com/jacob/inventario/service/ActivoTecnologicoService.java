@@ -35,15 +35,8 @@ public class ActivoTecnologicoService {
     }
 
     public ActivoTecnologicoEntity getById(UUID id) {
-        try {
-            Optional<ActivoTecnologicoEntity> activoTecnologicoEntity = activoTecnologicoRepository.findById(id);
-            if (activoTecnologicoEntity.isEmpty()) {
-                throw new CustomExcepcion(EnumErrorsCodes.ENTITY_NOT_FOUND);
-            }
-            return activoTecnologicoEntity.get();
-        } catch (Exception e) {
-            throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
-        }
+        return activoTecnologicoRepository.findById(id)
+            .orElseThrow(() -> new CustomExcepcion(EnumErrorsCodes.ENTITY_NOT_FOUND));
     }
 
     public UUID save(ActivoTecnologicoEntity asset) {

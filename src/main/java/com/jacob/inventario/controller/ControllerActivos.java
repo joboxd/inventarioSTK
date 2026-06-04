@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,13 +58,18 @@ public class ControllerActivos {
         return activoTecnologicoService.getByCategoria(categoria);
     }
     @PreAuthorize("hasRole('admin')")
-    @GetMapping("/rango/{inicio}/fin")
-    public List<ActivoTecnologicoEntity> activoByCategoria(@PathVariable("inicio") BigDecimal inicio, @PathVariable("fin") BigDecimal fin) {
+    @GetMapping("/rango/{inicio}/{fin}")
+    public List<ActivoTecnologicoEntity> activoByRango(@PathVariable("inicio") BigDecimal inicio, @PathVariable("fin") BigDecimal fin) {
         return activoTecnologicoService.getByRango(inicio,fin);
     }
     @PreAuthorize("hasRole('admin')")
     @PostMapping("/save")
     public UUID saveActivo(@RequestBody ActivoTecnologicoEntity body) {
+        return activoTecnologicoService.save(body);
+    }
+    @PreAuthorize("hasRole('admin')")
+    @PutMapping("/update")
+    public UUID updateActivo(@RequestBody ActivoTecnologicoEntity body) {
         return activoTecnologicoService.save(body);
     }
 

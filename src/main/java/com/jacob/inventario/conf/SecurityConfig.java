@@ -17,24 +17,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import lombok.AllArgsConstructor;
 
 
-
-/**
- * Clase de configuración de seguridad para la aplicación.
- * Define la cadena de filtros de seguridad HTTP, configura CORS, deshabilita
- * CSRF,
- * y establece la gestión de sesiones sin estado. También configura el servidor
- * de recursos
- * OAuth2 para procesar tokens JWT.
- *
- * @author TI - Karen Quiahua
- * @since 2025-08-14
- */
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @AllArgsConstructor
-public class SecurityConfig { 
+public class SecurityConfig {
 
     private JwtAuthenticationConverter authenticationConverter;
 
@@ -46,11 +33,12 @@ public class SecurityConfig {
      * @throws Exception Si ocurre un error al configurar la seguridad.
      */
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CorsConfigurationSource corsConfigurationSource)
+            throws Exception {
         return httpSecurity
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .oauth2ResourceServer(
-                     oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter))) 
+                        oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter)))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
@@ -59,10 +47,10 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(Arrays.asList(
-            "http://localhost:4200",
-            "https://sis.tecnomotum.com",
-            "https://dev-motum-gestion-vehicular-ui.web.app/",
-            "https://api-catalogo-validador-etl-dev-378262550684.us-central1.run.app"
+                "http://localhost:4200",
+                "https://sis.tecnomotum.com",
+                "https://dev-motum-gestion-vehicular-ui.web.app/",
+                "https://api-catalogo-validador-etl-dev-378262550684.us-central1.run.app"
 
         ));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -73,4 +61,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
