@@ -16,48 +16,43 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import lombok.AllArgsConstructor;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @AllArgsConstructor
 public class SecurityConfig {
 
-    private JwtAuthenticationConverter authenticationConverter;
+        private JwtAuthenticationConverter authenticationConverter;
 
-    /**
-     * Define la cadena de filtros de seguridad para la aplicación.
-     *
-     * @param httpSecurity El objeto HttpSecurity para configurar la seguridad.
-     * @return La cadena de filtros de seguridad configurada.
-     * @throws Exception Si ocurre un error al configurar la seguridad.
-     */
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, CorsConfigurationSource corsConfigurationSource)
-            throws Exception {
-        return httpSecurity
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
-                .oauth2ResourceServer(
-                        oauth -> oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter)))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .build();
-    }
+        @Bean
+        SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity,
+                        CorsConfigurationSource corsConfigurationSource)
+                        throws Exception {
+                return httpSecurity
+                                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**",
+                                                                "/swagger-ui.html")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
+                                .oauth2ResourceServer(
+                                                oauth -> oauth.jwt(jwt -> jwt
+                                                                .jwtAuthenticationConverter(authenticationConverter)))
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .build();
+        }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(Arrays.asList(
-                "http://localhost:4200",
-                "https://sis.tecnomotum.com",
-                "https://dev-motum-gestion-vehicular-ui.web.app/",
-                "https://api-catalogo-validador-etl-dev-378262550684.us-central1.run.app"
-
-        ));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        config.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+        @Bean
+        CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration config = new CorsConfiguration();
+                config.setAllowedOriginPatterns(Arrays.asList(
+                                "http://localhost:4200"));
+                config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                config.setAllowedHeaders(Collections.singletonList("*"));
+                config.setAllowCredentials(true);
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", config);
+                return source;
+        }
 }
