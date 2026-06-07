@@ -123,9 +123,14 @@ public class ActivoTecnologicoService {
             Estados estado, BigDecimal minCosto, BigDecimal maxCosto) {
         try {
             String ns = (numeroSerie != null && !numeroSerie.trim().isEmpty()) ? numeroSerie.trim() : null;
-            String mm = (marcaModelo != null && !marcaModelo.trim().isEmpty()) ? marcaModelo.trim() : null;
-            String cat = (categoria != null && !categoria.trim().isEmpty()) ? categoria.trim() : null;
 
+            String mm = (marcaModelo != null && !marcaModelo.trim().isEmpty())
+                    ? "%" + marcaModelo.trim().toLowerCase() + "%"
+                    : null;
+
+            String cat = (categoria != null && !categoria.trim().isEmpty())
+                    ? "%" + categoria.trim().toLowerCase() + "%"
+                    : null;
             List<ActivoTecnologicoEntity> activos = activoTecnologicoRepository.findByFilters(ns, mm, cat, estado,
                     minCosto, maxCosto);
 
@@ -229,5 +234,23 @@ public class ActivoTecnologicoService {
         }
         dto.setCategoria(entity.getCategoria().getNombre());
         return dto;
+    }
+
+    public Page<ActivoTecnologicoDTO> findByFiltersPage(String numeroSerie, String marcaModelo, String categoria,
+            Estados estado, BigDecimal minCosto, BigDecimal maxCosto, Pageable pageable) {
+
+        String ns = (numeroSerie != null && !numeroSerie.trim().isEmpty()) ? numeroSerie.trim() : null;
+
+        String mm = (marcaModelo != null && !marcaModelo.trim().isEmpty())
+                ? "%" + marcaModelo.trim().toLowerCase() + "%"
+                : null;
+
+        String cat = (categoria != null && !categoria.trim().isEmpty())
+                ? "%" + categoria.trim().toLowerCase() + "%"
+                : null;
+        Page<ActivoTecnologicoEntity> paginaEntidades = activoTecnologicoRepository.findByFiltersPage(ns, mm, cat,
+                estado,
+                minCosto, maxCosto, pageable);
+        return paginaEntidades.map(this::transformToDTO);
     }
 }

@@ -29,8 +29,8 @@ public interface ActivoTecnologicoRepository extends CrudRepository<ActivoTecnol
     
     @Query("SELECT a FROM ActivoTecnologicoEntity a " +
            "WHERE (:numeroSerie IS NULL OR a.numeroSerie = :numeroSerie) " +
-           "AND (:marcaModelo IS NULL OR LOWER(a.marcaModelo) LIKE LOWER(CONCAT('%', :marcaModelo, '%'))) " +
-           "AND (:categoria IS NULL OR LOWER(a.categoria.nombre) LIKE LOWER(CONCAT('%', :categoria, '%'))) " +
+           "AND (:marcaModelo IS NULL OR LOWER(a.marcaModelo) LIKE :marcaModelo) " +
+           "AND (:categoria IS NULL OR LOWER(a.categoria.nombre) LIKE :categoria) " +
            "AND (:estado IS NULL OR a.estado = :estado) " +
            "AND (:minCosto IS NULL OR a.costoAdquisicion >= :minCosto) " +
            "AND (:maxCosto IS NULL OR a.costoAdquisicion <= :maxCosto)")
@@ -40,8 +40,22 @@ public interface ActivoTecnologicoRepository extends CrudRepository<ActivoTecnol
             @Param("categoria") String categoria,
             @Param("estado") Estados estado,
             @Param("minCosto") BigDecimal minCosto,
-            @Param("maxCosto") BigDecimal maxCosto
-    );
+            @Param("maxCosto") BigDecimal maxCosto);
+     @Query("SELECT a FROM ActivoTecnologicoEntity a " +
+           "WHERE (:numeroSerie IS NULL OR a.numeroSerie = :numeroSerie) " +
+           "AND (:marcaModelo IS NULL OR LOWER(a.marcaModelo) LIKE :marcaModelo) " +
+           "AND (:categoria IS NULL OR LOWER(a.categoria.nombre) LIKE :categoria) " +
+           "AND (:estado IS NULL OR a.estado = :estado) " +
+           "AND (:minCosto IS NULL OR a.costoAdquisicion >= :minCosto) " +
+           "AND (:maxCosto IS NULL OR a.costoAdquisicion <= :maxCosto)")
+    Page<ActivoTecnologicoEntity> findByFiltersPage(
+            @Param("numeroSerie") String numeroSerie,
+            @Param("marcaModelo") String marcaModelo,
+            @Param("categoria") String categoria,
+            @Param("estado") Estados estado,
+            @Param("minCosto") BigDecimal minCosto,
+            @Param("maxCosto") BigDecimal maxCosto, Pageable pageable);
+    
 
     Page<ActivoTecnologicoEntity> findAll(Pageable pageable);
 }

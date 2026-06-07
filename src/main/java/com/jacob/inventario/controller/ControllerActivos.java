@@ -88,6 +88,17 @@ public class ControllerActivos {
         return activoTecnologicoService.generarReporteZip(numeroSerie, marcaModelo, categoria, estado, minCosto, maxCosto);
     }
     @PreAuthorize("hasRole('admin')")
+    @GetMapping("/filtros")
+    public Page<ActivoTecnologicoDTO> findByFiltersPage(
+            @RequestParam(value = "numeroSerie", required = false) String numeroSerie,
+            @RequestParam(value = "marcaModelo", required = false) String marcaModelo,
+            @RequestParam(value = "categoria", required = false) String categoria,
+            @RequestParam(value = "estado", required = false) Estados estado,
+            @RequestParam(value = "minCosto", required = false) BigDecimal minCosto,
+            @RequestParam(value = "maxCosto", required = false) BigDecimal maxCosto, Pageable pageable) {
+        return activoTecnologicoService.findByFiltersPage(numeroSerie, marcaModelo, categoria, estado, minCosto, maxCosto, pageable);
+    }
+    @PreAuthorize("hasRole('admin')")
     @GetMapping("/all")
     public Page<ActivoTecnologicoDTO> getAll(Pageable pageable) {
         return activoTecnologicoService.getAll(pageable);
