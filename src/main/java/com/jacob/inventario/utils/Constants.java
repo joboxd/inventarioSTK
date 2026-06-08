@@ -1,9 +1,5 @@
 package com.jacob.inventario.utils;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 public class Constants {
 
     private Constants() { 

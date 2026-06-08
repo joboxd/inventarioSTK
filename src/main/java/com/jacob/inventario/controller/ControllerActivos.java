@@ -33,50 +33,50 @@ public class ControllerActivos {
         this.activoTecnologicoService = activoTecnologicoService;
     }
 
-    @PreAuthorize("hasRole('client')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/liveness")
     public String liveness() {
         return "ok";
     }
 
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/{id}")
     public ActivoTecnologicoEntity activoById(@PathVariable("id") UUID id) {
         return activoTecnologicoService.getById(id);
     }
 
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/serie/{serie}")
-    public ActivoTecnologicoEntity activoByNumeroSerie(@PathVariable("serie") String serie) {
+    public ActivoTecnologicoDTO activoByNumeroSerie(@PathVariable("serie") String serie) {
         return activoTecnologicoService.getByNumeroSerie(serie);
     }
-     @PreAuthorize("hasRole('admin')")
+     @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/marca/{marca}")
     public List<ActivoTecnologicoEntity> activoByModeloMarca(@PathVariable("marca") String marca) {
         return activoTecnologicoService.getByMarcaModelo(marca);
     }
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/categoria/{categoria}")
     public List<ActivoTecnologicoEntity> activoByCategoria(@PathVariable("categoria") String categoria) {
         return activoTecnologicoService.getByCategoria(categoria);
     }
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/rango/{inicio}/{fin}")
     public List<ActivoTecnologicoEntity> activoByRango(@PathVariable("inicio") BigDecimal inicio, @PathVariable("fin") BigDecimal fin) {
         return activoTecnologicoService.getByRango(inicio,fin);
     }
     @PreAuthorize("hasRole('admin')")
     @PostMapping("/save")
-    public UUID saveActivo(@RequestBody ActivoTecnologicoEntity body) {
+    public UUID saveActivo(@RequestBody ActivoTecnologicoDTO body) {
         return activoTecnologicoService.save(body);
     }
     @PreAuthorize("hasRole('admin')")
     @PutMapping("/update")
-    public UUID updateActivo(@RequestBody ActivoTecnologicoEntity body) {
-        return activoTecnologicoService.save(body);
+    public UUID updateActivo(@RequestBody ActivoTecnologicoDTO body) {
+        return activoTecnologicoService.update(body);
     }
 
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/reporte")
     public Map<String, Object> generarReporte(
             @RequestParam(value = "numeroSerie", required = false) String numeroSerie,
@@ -87,7 +87,7 @@ public class ControllerActivos {
             @RequestParam(value = "maxCosto", required = false) BigDecimal maxCosto) {
         return activoTecnologicoService.generarReporteZip(numeroSerie, marcaModelo, categoria, estado, minCosto, maxCosto);
     }
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/filtros")
     public Page<ActivoTecnologicoDTO> findByFiltersPage(
             @RequestParam(value = "numeroSerie", required = false) String numeroSerie,
@@ -98,7 +98,7 @@ public class ControllerActivos {
             @RequestParam(value = "maxCosto", required = false) BigDecimal maxCosto, Pageable pageable) {
         return activoTecnologicoService.findByFiltersPage(numeroSerie, marcaModelo, categoria, estado, minCosto, maxCosto, pageable);
     }
-    @PreAuthorize("hasRole('admin')")
+    @PreAuthorize("hasAnyRole('admin', 'user')")
     @GetMapping("/all")
     public Page<ActivoTecnologicoDTO> getAll(Pageable pageable) {
         return activoTecnologicoService.getAll(pageable);

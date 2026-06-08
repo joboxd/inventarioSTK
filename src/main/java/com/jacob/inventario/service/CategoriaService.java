@@ -1,6 +1,10 @@
 package com.jacob.inventario.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,5 +32,19 @@ public class CategoriaService {
         } catch (Exception e) {
             throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
         }
+    }
+
+    public CategoriaEntity findById(Long id) {
+        Optional<CategoriaEntity> found = categoriaRepository.findById(id);
+        return found.get();
+    }
+
+    public List<CategoriaEntity> findAll() {
+        List<CategoriaEntity> list = new ArrayList<>();
+        Iterable<CategoriaEntity> found = categoriaRepository.findAll();
+        for (CategoriaEntity categoriaEntity : found) {
+            list.add(categoriaEntity);
+        }
+        return list;
     }
 }

@@ -24,18 +24,25 @@ import org.springframework.stereotype.Service;
 
 import com.jacob.inventario.dto.ActivoTecnologicoDTO;
 import com.jacob.inventario.entity.ActivoTecnologicoEntity;
+import com.jacob.inventario.entity.CategoriaEntity;
 import com.jacob.inventario.repository.ActivoTecnologicoRepository;
 import com.jacob.inventario.utils.CustomExcepcion;
 import com.jacob.inventario.utils.EnumErrorsCodes;
 import com.jacob.inventario.utils.Estados;
 
+import lombok.extern.log4j.Log4j2;
+
 @Service
+@Log4j2
 public class ActivoTecnologicoService {
     private final ActivoTecnologicoRepository activoTecnologicoRepository;
+    private final CategoriaService categoriaService;
 
     @Autowired
-    public ActivoTecnologicoService(ActivoTecnologicoRepository activoTecnologicoRepository) {
+    public ActivoTecnologicoService(ActivoTecnologicoRepository activoTecnologicoRepository,
+            CategoriaService categoriaService) {
         this.activoTecnologicoRepository = activoTecnologicoRepository;
+        this.categoriaService = categoriaService;
     }
 
     public Page<ActivoTecnologicoDTO> getAll(Pageable pageable) {
@@ -49,32 +56,59 @@ public class ActivoTecnologicoService {
                 .orElseThrow(() -> new CustomExcepcion(EnumErrorsCodes.ENTITY_NOT_FOUND));
     }
 
-    public UUID save(ActivoTecnologicoEntity asset) {
+    public UUID save(ActivoTecnologicoDTO asset) {
         try {
-            ActivoTecnologicoEntity found = getById(asset.getId());
-            if (found.getEstado().equals("Baja") && !asset.getEstado().equals("Baja")) {
-                throw new CustomExcepcion(EnumErrorsCodes.INVALID_INPUT);
-            }
-            asset.setFolioInventario(asset.getCategoria().getCodigoPrefijo() + asset.getFechaIngreso().getYear()
-                    + asset.getCategoria().getId());
-            ActivoTecnologicoEntity activoTecnologicoEntity = activoTecnologicoRepository.save(asset);
+
+            ActivoTecnologicoEntity activoTecnologicoEntity = activoTecnologicoRepository
+                    .save(transformToEntity(asset));
             if (Objects.isNull(activoTecnologicoEntity)) {
                 throw new CustomExcepcion(EnumErrorsCodes.DUPLICATE_ENTITY);
             }
             return activoTecnologicoEntity.getId();
         } catch (Exception e) {
+            log.error(e.getMessage());
             throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
         }
     }
 
-    public ActivoTecnologicoEntity getByNumeroSerie(String serie) {
+    public UUID update(ActivoTecnologicoDTO asset) {
+        try {
+            Optional<ActivoTecnologicoEntity> found = activoTecnologicoRepository.findById(asset.getId());
+            if (found.isPresent()) {
+                if (found.get().getEstado().equals("BAJA") && !asset.getEstado().equals("BAJA")) {
+                    throw new CustomExcepcion(EnumErrorsCodes.INVALID_INPUT);
+                }
+                ActivoTecnologicoEntity entityExistente = found.get();
+                CategoriaEntity categoria = categoriaService.findById(asset.getCategoriaId());
+                entityExistente.setNumeroSerie(asset.getNumeroSerie());
+                entityExistente.setMarcaModelo(asset.getMarcaModelo());
+
+                entityExistente.setEstado(asset.getEstado());
+
+                entityExistente.setCostoAdquisicion(asset.getCostoAdquisicion());
+                entityExistente.setCategoria(categoria);
+                ActivoTecnologicoEntity updated = activoTecnologicoRepository.save(entityExistente);
+                if (Objects.isNull(updated)) {
+                    throw new CustomExcepcion(EnumErrorsCodes.DUPLICATE_ENTITY);
+                }
+                return updated.getId();
+            }
+
+            return null;
+        } catch (Exception e) {
+            throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
+        }
+    }
+
+    public ActivoTecnologicoDTO getByNumeroSerie(String serie) {
         try {
             Optional<ActivoTecnologicoEntity> activoTecnologicoEntity = activoTecnologicoRepository
                     .findByNumeroSerie(serie);
             if (activoTecnologicoEntity.isEmpty()) {
                 throw new CustomExcepcion(EnumErrorsCodes.ENTITY_NOT_FOUND);
             }
-            return activoTecnologicoEntity.get();
+
+            return transformToDTO(activoTecnologicoEntity.get());
         } catch (Exception e) {
             throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
         }
@@ -233,7 +267,25 @@ public class ActivoTecnologicoService {
             dto.setCategoria("N/A");
         }
         dto.setCategoria(entity.getCategoria().getNombre());
+        dto.setCategoriaId(entity.getCategoria().getId());
         return dto;
+    }
+
+    private ActivoTecnologicoEntity transformToEntity(ActivoTecnologicoDTO asset) {
+        CategoriaEntity categoria = categoriaService.findById(asset.getCategoriaId());
+        ActivoTecnologicoEntity activoToSave = new ActivoTecnologicoEntity();
+
+        long autoIncremental = activoTecnologicoRepository.contarTotalActivos() + 1;
+        String folio = categoria.getCodigoPrefijo() + asset.getFechaIngreso().getYear()
+                + autoIncremental;
+        activoToSave.setFolioInventario(folio);
+        activoToSave.setNumeroSerie(asset.getNumeroSerie());
+        activoToSave.setMarcaModelo(asset.getMarcaModelo());
+        activoToSave.setEstado(asset.getEstado());
+        activoToSave.setCostoAdquisicion(asset.getCostoAdquisicion());
+        activoToSave.setCategoria(categoria);
+        activoToSave.setId(asset.getId());
+        return activoToSave;
     }
 
     public Page<ActivoTecnologicoDTO> findByFiltersPage(String numeroSerie, String marcaModelo, String categoria,

@@ -20,4 +20,5 @@ public class ActivoTecnologicoDTO {
     private LocalDateTime fechaIngreso;
     private String categoria;
     private String folioInventario;
+    private Long categoriaId;
 }
