@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -61,12 +62,13 @@ public class ActivoTecnologicoService {
 
             ActivoTecnologicoEntity activoTecnologicoEntity = activoTecnologicoRepository
                     .save(transformToEntity(asset));
-            if (Objects.isNull(activoTecnologicoEntity)) {
-                throw new CustomExcepcion(EnumErrorsCodes.DUPLICATE_ENTITY);
-            }
             return activoTecnologicoEntity.getId();
+        } catch (DataIntegrityViolationException e) {
+            log.error("El activo ya existe o viola una restricción única: {}", e.getMessage());
+            throw new CustomExcepcion(EnumErrorsCodes.SAME_SN);
+
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getStackTrace());
             throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
         }
     }
@@ -95,6 +97,10 @@ public class ActivoTecnologicoService {
             }
 
             return null;
+        } catch (DataIntegrityViolationException e) {
+            log.error("El activo ya existe o viola una restricción única: {}", e.getMessage());
+            throw new CustomExcepcion(EnumErrorsCodes.SAME_SN);
+
         } catch (Exception e) {
             throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
         }
@@ -109,6 +115,9 @@ public class ActivoTecnologicoService {
             }
 
             return transformToDTO(activoTecnologicoEntity.get());
+        } catch (CustomExcepcion ce) {
+            throw ce;
+
         } catch (Exception e) {
             throw new CustomExcepcion(EnumErrorsCodes.DATABASE_ERROR);
         }

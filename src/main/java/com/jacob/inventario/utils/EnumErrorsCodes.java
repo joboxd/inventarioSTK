@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum EnumErrorsCodes {
     ENTITY_NOT_FOUND("El registro no fue encontrado", HttpStatus.NOT_FOUND),
+    SAME_SN("Ya existe un registro con ese numero de serie", HttpStatus.CONFLICT),
     DUPLICATE_ENTITY("Ya existe un registro con los mismos datos", HttpStatus.CONFLICT),
     INVALID_INPUT("Los datos proporcionados son inválidos", HttpStatus.BAD_REQUEST),
     DATABASE_ERROR("Error al acceder a la base de datos", HttpStatus.INTERNAL_SERVER_ERROR),
